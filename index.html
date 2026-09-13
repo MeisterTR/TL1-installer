@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TrailLight Pro — Installer</title>
+<meta name="description" content="TrailLight Pro direkt aus dem Browser auf den ESP32 flashen.">
+<meta name="theme-color" content="#0B0D10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ff:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ffd:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --ffm:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --bg:#0B0D10; --surface:#14181D; --surface-2:#1C222A;
+  --line:#2A323C; --text:#F2F5F8; --muted:#8D97A3; --ink:#0A0C0F;
+  --accent:#00C2FF;
+  --tail:#C9302A; --brake:#FF3B21; --turn:#FFA412; --fog:#E12B2B; --rev:#E9F1FF;
+  --ok:#4ADE80; --warn:#FBBF24;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font:400 16px/1.6 var(--ff);
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:680px;margin:0 auto;padding:0 20px 64px}
+
+/* Leuchtenband — die sieben Kanäle in ihren realen Farben */
+.band{display:flex;height:5px}
+.band i{flex:1}
+.band i:nth-child(1),.band i:nth-child(2){background:var(--tail)}
+.band i:nth-child(3),.band i:nth-child(4){background:var(--turn)}
+.band i:nth-child(5){background:var(--brake)}
+.band i:nth-child(6){background:var(--fog)}
+.band i:nth-child(7){background:var(--rev)}
+
+header{padding:44px 0 30px}
+.kicker{
+  margin:0 0 14px;font:500 12px/1 var(--ffm);letter-spacing:.18em;
+  text-transform:uppercase;color:var(--accent);
+}
+h1{
+  margin:0 0 14px;font:700 clamp(38px,9vw,58px)/.95 var(--ffd);
+  letter-spacing:.005em;text-transform:uppercase;text-wrap:balance;
+}
+.lede{margin:0;color:var(--muted);font-size:17px;max-width:52ch}
+
+/* Installationskarte */
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:12px;
+  padding:26px 24px;margin:8px 0 28px;
+}
+.row{
+  display:flex;flex-wrap:wrap;align-items:center;gap:14px 18px;
+}
+.ver{display:flex;align-items:center;gap:10px;margin-left:auto}
+.ver label{font:500 11px/1 var(--ffm);letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+select{
+  min-height:40px;padding:8px 12px;background:var(--surface-2);color:var(--text);
+  border:1px solid var(--line);border-radius:8px;
+  font:500 14px/1 var(--ffm);cursor:pointer;
+}
+select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+esp-web-install-button{--esp-tools-button-color:transparent}
+.btn{
+  min-height:52px;padding:0 30px;
+  background:var(--accent);color:var(--ink);
+  border:none;border-radius:10px;
+  font:700 15px/52px var(--ff);letter-spacing:.1em;text-transform:uppercase;
+  cursor:pointer;white-space:nowrap;
+}
+.btn:hover{filter:brightness(1.08)}
+.btn:focus-visible{outline:2px solid var(--text);outline-offset:3px}
+
+.note{
+  margin:16px 0 0;padding:13px 15px;border-radius:8px;
+  background:var(--surface-2);border-left:3px solid var(--warn);
+  font-size:14.5px;color:var(--muted);
+}
+.note b{color:var(--text);font-weight:600}
+.note.ok{border-left-color:var(--ok)}
+
+/* Ablauf */
+h2{
+  margin:36px 0 4px;font:700 22px/1.1 var(--ffd);
+  letter-spacing:.02em;text-transform:uppercase;
+}
+.steps{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:2px}
+.steps li{
+  display:grid;grid-template-columns:30px 1fr;gap:14px;align-items:baseline;
+  padding:13px 0;border-bottom:1px solid var(--line);
+}
+.steps li:last-child{border-bottom:none}
+.steps span{
+  font:500 13px/1 var(--ffm);color:var(--accent);
+  font-variant-numeric:tabular-nums;
+}
+.steps p{margin:0;font-size:15px}
+.steps p b{font-weight:600}
+.steps small{display:block;margin-top:3px;color:var(--muted);font-size:13.5px}
+
+dl.facts{
+  margin:18px 0 0;display:grid;grid-template-columns:auto 1fr;
+  gap:9px 18px;font-size:14.5px;
+}
+dl.facts dt{
+  font:500 11px/1.6 var(--ffm);letter-spacing:.11em;text-transform:uppercase;
+  color:var(--muted);
+}
+dl.facts dd{margin:0;color:var(--text);font-variant-numeric:tabular-nums}
+
+footer{
+  margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:6px 20px;
+  font:400 12px/1.6 var(--ffm);color:var(--muted);
+}
+footer a{color:var(--muted)}
+a{color:var(--accent)}
+
+@media (max-width:520px){
+  .ver{margin-left:0;width:100%}
+  .ver select{flex:1}
+  .btn{width:100%}
+}
+</style>
+</head>
+<body>
+
+<div class="band"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+<div class="wrap">
+
+<header>
+  <p class="kicker">Anhängerbeleuchtung · Prüfgerät</p>
+  <h1>TrailLight Pro<br>Installer</h1>
+  <p class="lede">
+    Firmware direkt aus dem Browser auf den ESP32 schreiben — ohne
+    PlatformIO, ohne esptool, ohne Treiberbastelei.
+  </p>
+</header>
+
+<div class="card">
+  <div class="row">
+    <esp-web-install-button id="installer">
+      <button class="btn" slot="activate">Firmware installieren</button>
+      <span slot="unsupported"></span>
+      <span slot="not-allowed"></span>
+    </esp-web-install-button>
+
+    <div class="ver">
+      <label for="version">Version</label>
+      <select id="version"><option>lädt …</option></select>
+    </div>
+  </div>
+
+  <p class="note" id="browserNote" hidden>
+    <b>Dieser Browser kann nicht flashen.</b> Web Serial gibt es nur in
+    Chrome und Edge am Rechner — Firefox, Safari sowie Handys und Tablets
+    unterstützen es nicht.
+  </p>
+
+  <dl class="facts" id="facts" hidden>
+    <dt>Firmware</dt><dd id="fSize">—</dd>
+    <dt>Chip</dt><dd>ESP32 · 4 MB Flash</dd>
+    <dt>Board</dt><dd>Wemos LOLIN32</dd>
+  </dl>
+</div>
+
+<h2>So geht's</h2>
+<ol class="steps">
+  <li><span>01</span><p><b>ESP32 per USB anstecken.</b>
+    <small>Ein Datenkabel verwenden — reine Ladekabel haben keine Datenleitungen.</small></p></li>
+  <li><span>02</span><p><b>Auf „Firmware installieren" klicken</b> und im Dialog den seriellen Port wählen.
+    <small>Meist „CP2102", „CH340" oder „Silicon Labs". Erscheint nichts, fehlt der USB-Seriell-Treiber.</small></p></li>
+  <li><span>03</span><p><b>Warten, bis der Fortschritt durchgelaufen ist.</b>
+    <small>Rund zwei Minuten. In dieser Zeit das Kabel nicht abziehen.</small></p></li>
+  <li><span>04</span><p><b>WLAN einrichten.</b>
+    <small>Danach ist das Gerät unter <code>traillightpro.local</code> erreichbar.</small></p></li>
+</ol>
+
+<h2>Gut zu wissen</h2>
+<ol class="steps">
+  <li><span>!</span><p><b>Die Installation löscht den bisherigen Inhalt.</b>
+    <small>Gespeicherte Einstellungen und die Kopplung zur Fernbedienung gehen dabei verloren.</small></p></li>
+  <li><span>?</span><p><b>Der Vorgang läuft vollständig im Browser.</b>
+    <small>Die Firmware wird von dieser Seite geladen und direkt über den seriellen Port geschrieben. Es werden keine Daten übertragen.</small></p></li>
+</ol>
+
+<footer>
+  <span id="fwVersion">TrailLight Pro</span>
+  <span>© MeisterTR</span>
+  <a href="https://github.com/MeisterTR/TL1-installer">Repository</a>
+</footer>
+
+</div>
+
+<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js"></script>
+<script>
+(function () {
+  var select  = document.getElementById('version');
+  var button  = document.getElementById('installer');
+  var facts   = document.getElementById('facts');
+  var fSize   = document.getElementById('fSize');
+  var footer  = document.getElementById('fwVersion');
+
+  if (!('serial' in navigator)) {
+    document.getElementById('browserNote').hidden = false;
+  }
+
+  function apply(version) {
+    button.setAttribute('manifest', version + '/manifest.json');
+    footer.textContent = 'TrailLight Pro v' + version;
+    fetch(version + '/firmware.bin', { method: 'HEAD' })
+      .then(function (r) {
+        var len = r.headers.get('content-length');
+        if (!len) throw 0;
+        fSize.textContent = (len / 1048576).toFixed(2).replace('.', ',') + ' MB';
+        facts.hidden = false;
+      })
+      .catch(function () { facts.hidden = true; });
+  }
+
+  fetch('versions.json', { cache: 'no-store' })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      select.innerHTML = '';
+      data.versions.forEach(function (v) {
+        var o = document.createElement('option');
+        o.value = v;
+        o.textContent = v + (v === data.latest ? '  (aktuell)' : '');
+        select.appendChild(o);
+      });
+      select.value = data.latest;
+      apply(data.latest);
+    })
+    .catch(function () {
+      // Noch kein Release veröffentlicht, oder versions.json fehlt.
+      select.innerHTML = '<option>keine Version</option>';
+      select.disabled = true;
+      button.setAttribute('manifest', 'manifest.json');
+    });
+
+  select.addEventListener('change', function () { apply(select.value); });
+})();
+</script>
+
+</body>
+</html>
