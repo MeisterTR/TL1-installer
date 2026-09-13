@@ -166,6 +166,7 @@ a{color:var(--accent)}
 
   <dl class="facts" id="facts" hidden>
     <dt>Firmware</dt><dd id="fSize">—</dd>
+    <dt>Übertragung</dt><dd id="tSize">—</dd>
     <dt>Chip</dt><dd>ESP32 · 4 MB Flash</dd>
     <dt>Board</dt><dd>Wemos LOLIN32</dd>
   </dl>
@@ -206,28 +207,38 @@ a{color:var(--accent)}
   var button  = document.getElementById('installer');
   var facts   = document.getElementById('facts');
   var fSize   = document.getElementById('fSize');
+  var tSize   = document.getElementById('tSize');
   var footer  = document.getElementById('fwVersion');
+  var info    = {};
 
   if (!('serial' in navigator)) {
     document.getElementById('browserNote').hidden = false;
   }
 
+  function mb(bytes) {
+    return (bytes / 1048576).toFixed(2).replace('.', ',') + ' MB';
+  }
+
   function apply(version) {
     button.setAttribute('manifest', version + '/manifest.json');
     footer.textContent = 'TrailLight Pro v' + version;
-    fetch(version + '/firmware.bin', { method: 'HEAD' })
-      .then(function (r) {
-        var len = r.headers.get('content-length');
-        if (!len) throw 0;
-        fSize.textContent = (len / 1048576).toFixed(2).replace('.', ',') + ' MB';
-        facts.hidden = false;
-      })
-      .catch(function () { facts.hidden = true; });
+
+    // Größen stammen aus versions.json, nicht aus einem HEAD-Request:
+    // Pages liefert die .bin gzip-komprimiert aus, content-length wäre zu klein.
+    var size = info[version];
+    if (size && size.firmware) {
+      fSize.textContent = mb(size.firmware);
+      tSize.textContent = mb(size.total);
+      facts.hidden = false;
+    } else {
+      facts.hidden = true;
+    }
   }
 
   fetch('versions.json', { cache: 'no-store' })
     .then(function (r) { return r.json(); })
     .then(function (data) {
+      info = data.info || {};
       select.innerHTML = '';
       data.versions.forEach(function (v) {
         var o = document.createElement('option');
