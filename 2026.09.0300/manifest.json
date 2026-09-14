@@ -7,23 +7,23 @@
       "chipFamily": "ESP32",
       "parts": [
         {
-          "path": "2026.09.0300/bootloader.bin",
+          "path": "bootloader.bin",
           "offset": 4096
         },
         {
-          "path": "2026.09.0300/partitions.bin",
+          "path": "partitions.bin",
           "offset": 32768
         },
         {
-          "path": "2026.09.0300/boot_app0.bin",
+          "path": "boot_app0.bin",
           "offset": 57344
         },
         {
-          "path": "2026.09.0300/firmware.bin",
+          "path": "firmware.bin",
           "offset": 65536
         },
         {
-          "path": "2026.09.0300/spiffs.bin",
+          "path": "spiffs.bin",
           "offset": 3211264
         }
       ]
