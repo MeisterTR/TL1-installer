@@ -75,6 +75,13 @@ esp-web-install-button{--esp-tools-button-color:transparent}
   cursor:pointer;white-space:nowrap;
 }
 .btn:hover{filter:brightness(1.08)}
+/* Zweitrangige Handlung: gleiche Form, aber nur Kontur. Der Download
+   soll neben dem Installieren stehen, nicht mit ihm konkurrieren. */
+.btn.sek{
+  background:transparent;color:var(--text);
+  border:1px solid var(--line);text-decoration:none;
+}
+.btn.sek:hover{background:var(--surface-2);filter:none}
 .btn:focus-visible{outline:2px solid var(--text);outline-offset:3px}
 
 .note{
@@ -126,6 +133,11 @@ a{color:var(--accent)}
   .ver{margin-left:0;width:100%}
   .ver select{flex:1}
   .btn{width:100%}
+  .btn.sek{text-align:center}
+  /* Das Custom-Element ist inline und streckt sich nicht mit dem
+     Knopf darin -- nebeneinander faellt das nicht auf, untereinander
+     schon. */
+  esp-web-install-button{display:block;width:100%}
 }
 </style>
 </head>
@@ -152,16 +164,27 @@ a{color:var(--accent)}
       <span slot="not-allowed"></span>
     </esp-web-install-button>
 
+    <a class="btn sek" id="download" download>firmware.bin laden</a>
+
     <div class="ver">
       <label for="version">Version</label>
       <select id="version"><option>lädt …</option></select>
     </div>
   </div>
 
+  <p class="note ok">
+    <b>Schon ein Gerät im Einsatz?</b> Dann brauchst du kein Kabel:
+    <b>firmware.bin laden</b> und die Datei im Gerät unter
+    ⚙️ → <i>Update</i> hochladen. Einstellungen und die Kopplung zur
+    Fernbedienung bleiben dabei erhalten.
+  </p>
+
   <p class="note" id="browserNote" hidden>
     <b>Dieser Browser kann nicht flashen.</b> Web Serial gibt es nur in
     Chrome und Edge am Rechner — Firefox, Safari sowie Handys und Tablets
-    unterstützen es nicht.
+    unterstützen es nicht. <b>Herunterladen geht trotzdem</b>, und über die
+    Update-Funktion im Gerät lässt sich die Datei auch vom Handy aus
+    einspielen.
   </p>
 
   <dl class="facts" id="facts" hidden>
@@ -209,6 +232,7 @@ a{color:var(--accent)}
   var fSize   = document.getElementById('fSize');
   var tSize   = document.getElementById('tSize');
   var footer  = document.getElementById('fwVersion');
+  var dlLink  = document.getElementById('download');
   var info    = {};
 
   if (!('serial' in navigator)) {
@@ -222,6 +246,17 @@ a{color:var(--accent)}
   function apply(version) {
     button.setAttribute('manifest', version + '/manifest.json');
     footer.textContent = 'TrailLight Pro v' + version;
+
+    // Versionsbehafteter Dateiname: Im Download-Ordner liegen sonst
+    // mehrere "firmware.bin" nebeneinander und niemand weiss, welche
+    // welche ist. Das Geraet prueft ohnehin nur das Kennbyte, nicht den
+    // Namen.
+    //
+    // Pages liefert die .bin gzip-komprimiert aus. Das ist reine
+    // Transportkompression -- der Browser packt sie beim Speichern wieder
+    // aus, die Datei auf der Platte ist das echte Abbild.
+    dlLink.href = version + '/firmware.bin';
+    dlLink.setAttribute('download', 'traillight-pro-' + version + '.bin');
 
     // Größen stammen aus versions.json, nicht aus einem HEAD-Request:
     // Pages liefert die .bin gzip-komprimiert aus, content-length wäre zu klein.
@@ -254,6 +289,9 @@ a{color:var(--accent)}
       select.innerHTML = '<option>keine Version</option>';
       select.disabled = true;
       button.setAttribute('manifest', 'manifest.json');
+      // Ohne Versionsliste gibt es keinen Ordner, auf den der Link zeigen
+      // koennte. Ein Link ins Leere ist schlechter als keiner.
+      dlLink.hidden = true;
     });
 
   select.addEventListener('change', function () { apply(select.value); });
